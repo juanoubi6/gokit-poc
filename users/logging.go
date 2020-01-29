@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kit/kit/log"
 	"gokit-poc/models"
+	"os"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type LoggingMiddleware struct {
 	Next   UserService
 }
 
-func (mw LoggingMiddleware) CreateUser(ctx context.Context, req CreateUserRequest) (user models.User, err error) {
+func (mw LoggingMiddleware) CreateUser(ctx context.Context, req CreateUserRequest) (user *models.User, err error) {
 	defer func(begin time.Time) {
 		_ = mw.Logger.Log(
 			"method", "CreateUser",
@@ -24,4 +25,10 @@ func (mw LoggingMiddleware) CreateUser(ctx context.Context, req CreateUserReques
 	}(time.Now())
 
 	return mw.Next.CreateUser(ctx, req)
+}
+
+func LoggingMiddlewareDecorator(svc UserService) UserService {
+	logger := log.NewLogfmtLogger(os.Stderr)
+
+	return LoggingMiddleware{logger, svc}
 }

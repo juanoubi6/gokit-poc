@@ -6,12 +6,6 @@ import (
 	"gokit-poc/models"
 )
 
-func GetEndpoints(svc UserService) []endpoint.Endpoint {
-	return []endpoint.Endpoint{
-		MakeCreateUserEndpoint(svc),
-	}
-}
-
 func MakeCreateUserEndpoint(svc UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateUserRequest)
@@ -27,9 +21,9 @@ func MakeCreateUserEndpoint(svc UserService) endpoint.Endpoint {
 type CreateUserRequest struct {
 	Name     string `json:"name"`
 	LastName string `json:"lastName"`
-	Age      string `json:"age"`
+	Age      int    `json:"age"`
 }
 
 type CreateUserResponse struct {
-	User models.User
+	User *models.User
 }

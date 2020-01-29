@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gokit-poc/users"
 	"net/http"
 	"os"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	httptransport "github.com/go-kit/kit/transport/http"
 )
 
 func main() {
@@ -35,26 +35,13 @@ func main() {
 		Help:      "The result of each count method.",
 	}, []string{}) // no fields here
 
-	var svc StringService
-	svc = stringService{}
-	svc = loggingMiddleware{logger, svc}
-	svc = instrumentingMiddleware{requestCount, requestLatency, countResult, svc}
+	userService := users.CreateUserService()
+	userService = users.LoggingMiddleware{logger, userService}
+	userService = users.InstrumentingMiddleware{requestCount, requestLatency, countResult, svc}
 
-	uppercaseHandler := httptransport.NewServer(
-		makeUppercaseEndpoint(svc),
-		decodeUppercaseRequest,
-		encodeResponse,
-	)
-
-	countHandler := httptransport.NewServer(
-		makeCountEndpoint(svc),
-		decodeCountRequest,
-		encodeResponse,
-	)
-
-	http.Handle("/uppercase", uppercaseHandler)
-	http.Handle("/count", countHandler)
+	http.Handle("/user", users.CreateUserHandler(userService))
 	http.Handle("/metrics", promhttp.Handler())
+
 	logger.Log("msg", "HTTP", "addr", ":8080")
 	logger.Log("err", http.ListenAndServe(":8080", nil))
 }

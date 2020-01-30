@@ -13,7 +13,7 @@ type UserService interface {
 
 type Service struct{}
 
-func CreateUserService() UserService {
+func UserServiceFactory() UserService {
 	svc := &Service{}
 	userService := InstrumentingMiddlewareDecorator(svc)
 	userService = LoggingMiddlewareDecorator(userService)

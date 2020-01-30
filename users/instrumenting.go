@@ -46,7 +46,7 @@ func InstrumentingMiddlewareDecorator(svc UserService) UserService {
 		Subsystem: "UserService",
 		Name:      "count_result",
 		Help:      "The result of each count method.",
-	}, []string{}) // no fields here
+	}, []string{})
 
 	return InstrumentingMiddleware{
 		requestCount,

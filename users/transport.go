@@ -25,5 +25,5 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
-	User *models.User
+	User *models.User `json:"user"`
 }

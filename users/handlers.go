@@ -28,6 +28,7 @@ func decodeCreateUserRequest(_ context.Context, r *http.Request) (interface{}, e
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
 	}
+
 	return request, nil
 }
 
@@ -35,9 +36,8 @@ func encodeCreateUserResponse(ctx context.Context, w http.ResponseWriter, respon
 	switch res := response.(type) {
 	case commons.BusinessError:
 		commons.EncodeJSONError(ctx, res, w)
-		return nil
 	case CreateUserResponse:
-		return json.NewEncoder(w).Encode(response)
+		commons.EncodeJSONResponse(response, w)
 	}
 
 	return nil

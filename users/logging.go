@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-kit/kit/log"
 	"gokit-poc/models"
 	"os"
@@ -15,12 +16,14 @@ type LoggingMiddleware struct {
 
 func (mw LoggingMiddleware) CreateUser(ctx context.Context, req CreateUserRequest) (user *models.User, err error) {
 	defer func(begin time.Time) {
+		input, _ := json.Marshal(req)
+		output, _ := json.Marshal(user)
 		_ = mw.Logger.Log(
-			"method", "CreateUser",
-			"input", req,
-			"output", user,
-			"err", err,
-			"took", time.Since(begin),
+			"Endpoint", "CreateUser",
+			"Input", input,
+			"Output", output,
+			"Err", err,
+			"Took", time.Since(begin),
 		)
 	}(time.Now())
 

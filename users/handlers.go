@@ -10,6 +10,7 @@ import (
 )
 
 func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
+	println("Adding routes")
 	// Options added here:
 	// ServerErrorEncoder: handles decoding errors
 	opts := []httptransport.ServerOption{
@@ -25,7 +26,6 @@ func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
 		opts...,
 	))
 
-	println("Routes added")
 }
 
 func decodeCreateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {

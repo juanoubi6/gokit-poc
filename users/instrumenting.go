@@ -30,19 +30,19 @@ func (mw InstrumentingMiddleware) CreateUser(ctx context.Context, req CreateUser
 func InstrumentingMiddlewareDecorator(svc UserService) UserService {
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Namespace: "my_group",
+		Namespace: "API",
 		Subsystem: "UserService",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
 	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
+		Namespace: "API",
 		Subsystem: "UserService",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
 	countResult := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
+		Namespace: "API",
 		Subsystem: "UserService",
 		Name:      "count_result",
 		Help:      "The result of each count method.",

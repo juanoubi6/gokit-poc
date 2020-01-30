@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gokit-poc/commons"
 	"gokit-poc/users"
@@ -8,11 +9,19 @@ import (
 )
 
 func main() {
-	userService := users.UserServiceFactory()
+	router := mux.NewRouter()
 
-	http.Handle("/user", users.CreateUserHandler(userService))
-	http.Handle("/metrics", promhttp.Handler())
+	//Create user service, it's endpoints and add these to the router.
+	userService := users.UserServiceFactory()
+	userServiceEndpoints := users.MakeEndpoints(userService)
+	users.NewHTTPHandler(router, userServiceEndpoints)
+
+	//Add metrics
+	router.Methods(http.MethodGet).Path("/metrics").Handler(promhttp.Handler())
 
 	println("Starting server on port: " + commons.Port)
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(commons.Port, router); err != nil {
+		println(err.Error())
+	}
+
 }

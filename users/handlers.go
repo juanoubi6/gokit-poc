@@ -4,23 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"gokit-poc/commons"
 	"net/http"
 )
 
-// Options added here:
-// ServerErrorEncoder: handles decoding errors
-var opts = []httptransport.ServerOption{
-	httptransport.ServerErrorEncoder(commons.EncodeJSONError),
-}
+func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
+	// Options added here:
+	// ServerErrorEncoder: handles decoding errors
+	opts := []httptransport.ServerOption{
+		httptransport.ServerErrorEncoder(commons.EncodeJSONError),
+	}
 
-func CreateUserHandler(svc UserService) *httptransport.Server {
-	return httptransport.NewServer(
-		MakeCreateUserEndpoint(svc),
+	subRouter := router.PathPrefix("/user").Subrouter()
+
+	subRouter.Methods(http.MethodPost).Path("").Handler(httptransport.NewServer(
+		endpoints.CreateUser,
 		decodeCreateUserRequest,
 		encodeCreateUserResponse,
 		opts...,
-	)
+	))
+
+	println("Routes added")
 }
 
 func decodeCreateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {

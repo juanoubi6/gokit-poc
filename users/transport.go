@@ -6,6 +6,16 @@ import (
 	"gokit-poc/models"
 )
 
+type Endpoints struct {
+	CreateUser endpoint.Endpoint
+}
+
+func MakeEndpoints(svc UserService) Endpoints {
+	return Endpoints{
+		CreateUser: MakeCreateUserEndpoint(svc),
+	}
+}
+
 func MakeCreateUserEndpoint(svc UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateUserRequest)

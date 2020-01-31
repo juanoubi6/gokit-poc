@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	"gokit-poc/models"
+	"gokit-poc/security"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -55,9 +56,5 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (string, error) {
 		return "", errors.New("invalid password")
 	}
 
-	return GenerateAccountAuthorizationToken(account), nil
-}
-
-func GenerateAccountAuthorizationToken(account *models.Account) string {
-	return "token from " + account.Email
+	return security.CreateAccountJWT(account)
 }

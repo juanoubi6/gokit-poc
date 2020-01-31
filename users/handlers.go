@@ -5,6 +5,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"gokit-poc/commons"
+	"gokit-poc/security"
 	"net/http"
 )
 
@@ -14,6 +15,7 @@ func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
 	// ServerErrorEncoder: handles decoding errors
 	opts := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(commons.EncodeJSONError),
+		httptransport.ServerBefore(security.AuthTokenToContext()),
 	}
 
 	subRouter := router.PathPrefix("/user").Subrouter()

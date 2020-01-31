@@ -5,6 +5,7 @@ go 1.11
 require (
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/go-kit/kit v0.9.0
+	github.com/go-playground/validator/v10 v10.1.0
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/gorm v1.9.12

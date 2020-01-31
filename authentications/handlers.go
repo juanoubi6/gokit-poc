@@ -2,7 +2,6 @@ package authentications
 
 import (
 	"context"
-	"encoding/json"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"gokit-poc/commons"
@@ -35,7 +34,7 @@ func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
 
 func decodeSignUpRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request SignUpRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	if err := commons.EncodeAndValidate(r.Body, &request); err != nil {
 		return nil, err
 	}
 
@@ -55,7 +54,7 @@ func encodeSignUpResponse(ctx context.Context, w http.ResponseWriter, response i
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	if err := commons.EncodeAndValidate(r.Body, &request); err != nil {
 		return nil, err
 	}
 

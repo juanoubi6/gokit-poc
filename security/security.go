@@ -3,7 +3,6 @@ package security
 import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
-	kitJWT "github.com/go-kit/kit/auth/jwt"
 	kitHTTP "github.com/go-kit/kit/transport/http"
 	"gokit-poc/models"
 	"net/http"
@@ -15,6 +14,7 @@ const (
 	Bearer              string = "bearer"
 	AuthorizationHeader string = "Authorization"
 	JWTSecretKey        string = "notSoSecret"
+	JWTTokenContextKey  string = "JWTToken"
 )
 
 type AccountClaims struct {
@@ -31,7 +31,7 @@ func AuthTokenToContext() kitHTTP.RequestFunc {
 			return ctx
 		}
 
-		return context.WithValue(ctx, kitJWT.JWTTokenContextKey, token)
+		return context.WithValue(ctx, JWTTokenContextKey, token)
 	}
 }
 

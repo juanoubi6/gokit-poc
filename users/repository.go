@@ -18,6 +18,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db}
 }
 
+//TODO: Add error handling
 func (repo *userRepository) CreateUser(_ context.Context, user *models.User) (*models.User, error) {
 	repo.db.Create(&user)
 

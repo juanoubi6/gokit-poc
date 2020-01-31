@@ -1,0 +1,22 @@
+POST http://localhost:8080/user
+Content-Type: application/json
+Cache-Control: no-cache
+
+{   "name": "pepe",   "lastName": "pomnpin",   "age": 22 }
+
+###
+POST http://localhost:8080/signup
+Content-Type: application/json
+Cache-Control: no-cache
+
+{   "email": "pepe@gmail.com",   "password": "sarlanga"}
+
+###
+POST http://localhost:8080/login
+Content-Type: application/json
+Cache-Control: no-cache
+
+{   "email": "jorge@gmail.com",   "password": "sarlanga"}
+
+###
+

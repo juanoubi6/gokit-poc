@@ -2,7 +2,6 @@ package users
 
 import (
 	"context"
-	"encoding/json"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"gokit-poc/commons"
@@ -30,7 +29,7 @@ func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
 
 func decodeCreateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request CreateUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	if err := commons.EncodeAndValidate(r.Body, &request); err != nil {
 		return nil, err
 	}
 

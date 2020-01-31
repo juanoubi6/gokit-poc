@@ -31,9 +31,9 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*model
 	}
 
 	user := &models.User{
-		Name:     "John",
-		LastName: "Doe",
-		Age:      23,
+		Name:     req.Name,
+		LastName: req.LastName,
+		Age:      req.Age,
 	}
 
 	return s.repository.CreateUser(ctx, user)

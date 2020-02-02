@@ -3,6 +3,8 @@ package security
 import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
+	kitJWT "github.com/go-kit/kit/auth/jwt"
+	"github.com/go-kit/kit/endpoint"
 	kitHTTP "github.com/go-kit/kit/transport/http"
 	"gokit-poc/models"
 	"net/http"
@@ -14,7 +16,6 @@ const (
 	Bearer              string = "bearer"
 	AuthorizationHeader string = "Authorization"
 	JWTSecretKey        string = "notSoSecret"
-	JWTTokenContextKey  string = "JWTToken"
 )
 
 type AccountClaims struct {
@@ -31,7 +32,7 @@ func AuthTokenToContext() kitHTTP.RequestFunc {
 			return ctx
 		}
 
-		return context.WithValue(ctx, JWTTokenContextKey, token)
+		return context.WithValue(ctx, kitJWT.JWTTokenContextKey, token)
 	}
 }
 
@@ -55,4 +56,15 @@ func CreateAccountJWT(account *models.Account) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
 
 	return token.SignedString([]byte(JWTSecretKey))
+}
+
+func AccountAuthorizationMiddleware() endpoint.Middleware {
+	kf := func(tok *jwt.Token) (interface{}, error) {
+		return JWTSecretKey, nil
+	}
+	claimFactory := func() jwt.Claims {
+		return AccountClaims{}
+	}
+
+	return kitJWT.NewParser(kf, jwt.SigningMethodHS256, claimFactory)
 }

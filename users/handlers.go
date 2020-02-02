@@ -21,7 +21,7 @@ func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
 	subRouter := router.PathPrefix("/user").Subrouter()
 
 	subRouter.Methods(http.MethodPost).Path("").Handler(httptransport.NewServer(
-		endpoints.CreateUser,
+		security.AccountAuthorizationMiddleware()(endpoints.CreateUser),
 		decodeCreateUserRequest,
 		encodeCreateUserResponse,
 		opts...,

@@ -31,7 +31,7 @@ func MakeCreateUserEndpoint(svc UserService) endpoint.Endpoint {
 type CreateUserRequest struct {
 	Name     string `json:"name" validate:"required"`
 	LastName string `json:"lastName" validate:"required"`
-	Age      int    `json:"age" validate:"required"`
+	Age      int    `json:"age" validate:"gt=0"`
 }
 
 type CreateUserResponse struct {

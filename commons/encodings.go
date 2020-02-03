@@ -33,10 +33,10 @@ func EncodeJSONResponse(message string, httpCode int, response interface{}, w ht
 
 func EncodeAndValidate(r io.Reader, container interface{}) error {
 	if err := json.NewDecoder(r).Decode(&container); err != nil {
-		return err
+		return ValidationError{err.Error()}
 	}
 	if err := validate.Struct(container); err != nil {
-		return err
+		return ValidationError{err.Error()}
 	}
 
 	return nil

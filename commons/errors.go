@@ -23,6 +23,14 @@ func (a AuthorizationError) Error() string {
 	return a.Message
 }
 
+type ValidationError struct {
+	Message string
+}
+
+func (v ValidationError) Error() string {
+	return v.Message
+}
+
 func EncodeJSONError(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		panic("Calling EncodeJSONError without an error.")
@@ -33,7 +41,7 @@ func EncodeJSONError(_ context.Context, err error, w http.ResponseWriter) {
 	switch err.(type) {
 	case AuthorizationError:
 		httpStatusCode = http.StatusUnauthorized
-	case BusinessError:
+	case BusinessError, ValidationError:
 		httpStatusCode = http.StatusBadRequest
 	default:
 		httpStatusCode = http.StatusInternalServerError

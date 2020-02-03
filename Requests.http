@@ -3,7 +3,7 @@ Content-Type: application/json
 Cache-Control: no-cache
 Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MiwiRW1haWwiOiJqb3JnZUBnbWFpbC5jb20iLCJleHAiOjE1ODA3NTEzMjN9.obKCCbAft0zKpTrAFJvkMYMXRY57oI57VBy9DBDX-v0
 
-{   "name": "pepe",   "lastName": "pomnpin",   "age": 22 }
+{   "name": "John",   "lastName": "Doe",   "age": 22 }
 
 ###
 
@@ -12,14 +12,14 @@ POST http://localhost:8080/signup
 Content-Type: application/json
 Cache-Control: no-cache
 
-{   "email": "pepe@gmail.com",   "password": "sarlanga"}
+{   "email": "johndoe@test.com",   "password": "testpass"}
 
 ###
 POST http://localhost:8080/login
 Content-Type: application/json
 Cache-Control: no-cache
 
-{   "email": "jorge@gmail.com",   "password": "sarlanga"}
+{   "email": "johndoe@test.com",   "password": "testpass"}
 
 ###
 

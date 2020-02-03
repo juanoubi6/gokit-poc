@@ -5,13 +5,30 @@ import (
 	"github.com/go-playground/validator/v10"
 	"io"
 	"net/http"
+	"time"
 )
 
 var validate = validator.New()
 
-func EncodeJSONResponse(response interface{}, w http.ResponseWriter) {
+type GenericResponse struct {
+	Success   bool        `json:"success"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data"`
+	Errors    []string    `json:"errors"`
+	HttpCode  int         `json:"httpCode"`
+	Timestamp string      `json:"timestamp"`
+}
+
+func EncodeJSONResponse(message string, httpCode int, response interface{}, w http.ResponseWriter) {
 	w.Header().Set(ContentType, ApplicationJSON)
-	_ = json.NewEncoder(w).Encode(response)
+	w.WriteHeader(httpCode)
+	_ = json.NewEncoder(w).Encode(GenericResponse{
+		Success:   true,
+		Message:   message,
+		Data:      response,
+		HttpCode:  httpCode,
+		Timestamp: time.Now().Format(time.RFC3339),
+	})
 }
 
 func EncodeAndValidate(r io.Reader, container interface{}) error {

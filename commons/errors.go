@@ -23,33 +23,28 @@ func (a AuthorizationError) Error() string {
 	return a.Message
 }
 
-type ErrorResponse struct {
-	Errors    []string `json:"errors"`
-	HttpCode  int      `json:"httpCode"`
-	Timestamp string   `json:"timestamp"`
-}
-
 func EncodeJSONError(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		panic("Calling EncodeJSONError without an error.")
 	}
 
-	var status int
+	var httpStatusCode int
 
 	switch err.(type) {
 	case AuthorizationError:
-		status = http.StatusUnauthorized
+		httpStatusCode = http.StatusUnauthorized
 	case BusinessError:
-		status = http.StatusBadRequest
+		httpStatusCode = http.StatusBadRequest
 	default:
-		status = http.StatusInternalServerError
+		httpStatusCode = http.StatusInternalServerError
 	}
 
 	w.Header().Set(ContentType, ApplicationJSON)
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(ErrorResponse{
+	w.WriteHeader(httpStatusCode)
+	_ = json.NewEncoder(w).Encode(GenericResponse{
+		Success:   false,
 		Errors:    []string{err.Error()},
-		HttpCode:  status,
+		HttpCode:  httpStatusCode,
 		Timestamp: time.Now().Format(time.RFC3339),
 	})
 }

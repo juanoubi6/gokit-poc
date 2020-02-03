@@ -46,7 +46,7 @@ func encodeSignUpResponse(ctx context.Context, w http.ResponseWriter, response i
 	case commons.BusinessError:
 		commons.EncodeJSONError(ctx, res, w)
 	case SignUpResponse:
-		commons.EncodeJSONResponse(response, w)
+		commons.EncodeJSONResponse("Successful sign up", http.StatusCreated, response, w)
 	}
 
 	return nil
@@ -66,7 +66,7 @@ func encodeLoginResponse(ctx context.Context, w http.ResponseWriter, response in
 	case commons.BusinessError:
 		commons.EncodeJSONError(ctx, res, w)
 	case LoginResponse:
-		commons.EncodeJSONResponse(response, w)
+		commons.EncodeJSONResponse("Successful log in", http.StatusOK, response, w)
 	}
 
 	return nil

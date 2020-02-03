@@ -43,7 +43,7 @@ func encodeCreateUserResponse(ctx context.Context, w http.ResponseWriter, respon
 	case commons.BusinessError:
 		commons.EncodeJSONError(ctx, res, w)
 	case CreateUserResponse:
-		commons.EncodeJSONResponse(response, w)
+		commons.EncodeJSONResponse("User created", http.StatusCreated, response, w)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"github.com/jinzhu/gorm"
+	"gokit-poc/commons"
 	"gokit-poc/models"
 )
 
@@ -20,7 +21,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (repo *userRepository) CreateUser(_ context.Context, user *models.User) (*models.User, error) {
 	if err := repo.db.Create(&user).Error; err != nil {
-		return nil, err
+		return nil, commons.BusinessError{err.Error()}
 	}
 
 	return user, nil

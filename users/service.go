@@ -2,8 +2,8 @@ package users
 
 import (
 	"context"
-	"errors"
 	"github.com/jinzhu/gorm"
+	"gokit-poc/commons"
 	"gokit-poc/models"
 )
 
@@ -26,8 +26,8 @@ func UserServiceFactory(db *gorm.DB) UserService {
 }
 
 func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*models.User, error) {
-	if req.Age == 0 {
-		return nil, errors.New("age can't be 0")
+	if req.Age == 100 {
+		return nil, commons.BusinessError{"Age can't be 100"}
 	}
 
 	user := &models.User{

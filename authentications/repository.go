@@ -3,6 +3,7 @@ package authentications
 import (
 	"context"
 	"github.com/jinzhu/gorm"
+	"gokit-poc/commons"
 	"gokit-poc/models"
 )
 
@@ -21,7 +22,7 @@ func NewAuthenticationRepository(db *gorm.DB) AuthenticationRepository {
 
 func (repo *authenticationRepository) CreateAccount(_ context.Context, account *models.Account) (*models.Account, error) {
 	if err := repo.db.Create(&account).Error; err != nil {
-		return nil, err
+		return nil, commons.BusinessError{err.Error()}
 	}
 
 	return account, nil
@@ -30,7 +31,7 @@ func (repo *authenticationRepository) CreateAccount(_ context.Context, account *
 func (repo *authenticationRepository) GetAccountByEmail(_ context.Context, email string) (*models.Account, error) {
 	var account models.Account
 	if err := repo.db.Where("email = ?", email).First(&account).Error; err != nil {
-		return nil, err
+		return nil, commons.BusinessError{err.Error()}
 	}
 
 	return &account, nil

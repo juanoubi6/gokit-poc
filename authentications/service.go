@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/jinzhu/gorm"
+	"gokit-poc/commons"
 	"gokit-poc/models"
 	"gokit-poc/security"
 	"golang.org/x/crypto/bcrypt"
@@ -49,11 +50,11 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (string, error) {
 	}
 
 	if account == nil {
-		return "", errors.New("account not found")
+		return "", commons.BusinessError{"Account not found"}
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(req.Password)); err != nil {
-		return "", errors.New("invalid password")
+		return "", commons.BusinessError{"Invalid password"}
 	}
 
 	return security.CreateAccountJWT(account)

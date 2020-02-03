@@ -25,6 +25,7 @@ func (a AuthorizationError) Error() string {
 
 type ValidationError struct {
 	Message string
+	Errors  *[]string
 }
 
 func (v ValidationError) Error() string {
@@ -37,21 +38,32 @@ func EncodeJSONError(_ context.Context, err error, w http.ResponseWriter) {
 	}
 
 	var httpStatusCode int
+	var errors []string
 
 	switch err.(type) {
 	case AuthorizationError:
 		httpStatusCode = http.StatusUnauthorized
-	case BusinessError, ValidationError:
+		errors = []string{err.Error()}
+	case BusinessError:
 		httpStatusCode = http.StatusBadRequest
+		errors = []string{err.Error()}
+	case ValidationError:
+		httpStatusCode = http.StatusBadRequest
+		if errSlice := err.(ValidationError).Errors; errSlice != nil {
+			errors = *errSlice
+		} else {
+			errors = []string{err.Error()}
+		}
 	default:
 		httpStatusCode = http.StatusInternalServerError
+		errors = []string{err.Error()}
 	}
 
 	w.Header().Set(ContentType, ApplicationJSON)
 	w.WriteHeader(httpStatusCode)
 	_ = json.NewEncoder(w).Encode(GenericResponse{
 		Success:   false,
-		Errors:    []string{err.Error()},
+		Errors:    errors,
 		HttpCode:  httpStatusCode,
 		Timestamp: time.Now().Format(time.RFC3339),
 	})

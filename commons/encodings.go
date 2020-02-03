@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -33,10 +34,18 @@ func EncodeJSONResponse(message string, httpCode int, response interface{}, w ht
 
 func EncodeAndValidate(r io.Reader, container interface{}) error {
 	if err := json.NewDecoder(r).Decode(&container); err != nil {
-		return ValidationError{err.Error()}
+		return ValidationError{Message: err.Error(), Errors: nil}
 	}
 	if err := validate.Struct(container); err != nil {
-		return ValidationError{err.Error()}
+		if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+			var errorTags []string
+			for _, fieldError := range fieldErrors {
+				errorTags = append(errorTags, strings.Join([]string{fieldError.Field(), fieldError.Tag(), fieldError.Param()}, " "))
+			}
+			return ValidationError{Message: err.Error(), Errors: &errorTags}
+		} else {
+			return ValidationError{Message: err.Error(), Errors: nil}
+		}
 	}
 
 	return nil

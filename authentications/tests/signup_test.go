@@ -3,7 +3,6 @@ package authentications
 import (
 	"bytes"
 	"encoding/json"
-	"gokit-poc/builder"
 	"gokit-poc/commons"
 	"gokit-poc/models"
 	"net/http"
@@ -12,17 +11,10 @@ import (
 	"testing"
 )
 
-var testingRouter http.Handler
-
 func TestMain(m *testing.M) {
-	createTestingRouter()
+	CreateTestingRouter()
 	code := m.Run()
 	os.Exit(code)
-}
-
-func createTestingRouter() {
-	db := builder.CreateDatabase(commons.TestDatabaseUri)
-	testingRouter = builder.BuildAppRouter(db)
 }
 
 func TestSignUpReturns201OnCreatedAccount(t *testing.T) {
@@ -38,7 +30,7 @@ func TestSignUpReturns201OnCreatedAccount(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	testingRouter.ServeHTTP(rr, req)
+	TestingRouter.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
@@ -60,7 +52,7 @@ func TestSignUpStoresAccountInDB(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	testingRouter.ServeHTTP(rr, req)
+	TestingRouter.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusCreated {
 		t.Errorf("Account creation failed: " + rr.Body.String())

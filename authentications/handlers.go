@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-func NewHTTPHandler(router *mux.Router, endpoints Endpoints) {
-	println("Adding routes")
+func AddHTTPHandlersToRouter(router *mux.Router, endpoints Endpoints) {
+	println("Adding authentication service routes")
 	// Options added here:
 	// ServerErrorEncoder: handles decoding errors
 	opts := []httptransport.ServerOption{

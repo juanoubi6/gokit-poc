@@ -4,22 +4,24 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gokit-poc/models"
-	"os"
-	"path"
 )
 
-func CreateDatabase(uri string) *gorm.DB {
+var (
+	GlobalDB *gorm.DB
+	err      error
+)
+
+func CreateDatabase(dialect, uri string) *gorm.DB {
 	println("Creating DB")
-	wd, _ := os.Getwd()
-	db, err := gorm.Open("sqlite3", path.Join(wd, uri))
+	GlobalDB, err = gorm.Open(dialect, uri)
 	if err != nil {
 		panic("Error when creating database: " + err.Error())
 	}
 
 	println("Migrating tables")
-	migrate(db)
+	migrate(GlobalDB)
 
-	return db
+	return GlobalDB
 }
 
 func migrate(db *gorm.DB) {

@@ -7,52 +7,76 @@ import (
 	"gokit-poc/models"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	CreateTestingRouter()
-	code := m.Run()
-	os.Exit(code)
-}
-
-func TestSignUpReturns201OnCreatedAccount(t *testing.T) {
+func PrepareSignUpRequest(email, password string) (*httptest.ResponseRecorder, error) {
 	reqBody := map[string]interface{}{
-		"email":    "account@test.com",
-		"password": "validpassword",
+		"email":    email,
+		"password": password,
 	}
 	jsonStr, err := json.Marshal(reqBody)
 
 	req, err := http.NewRequest("POST", "/signup", bytes.NewBuffer(jsonStr))
 	if err != nil {
-		t.Fatal(err)
+		return nil, err
 	}
 
 	rr := httptest.NewRecorder()
 	TestingRouter.ServeHTTP(rr, req)
+
+	return rr, nil
+
+}
+
+func TestSignUpReturns201OnCreatedAccount(t *testing.T) {
+	rr, err := PrepareSignUpRequest("account@test.com", "validpassword")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 }
 
-func TestSignUpStoresAccountInDB(t *testing.T) {
-	testEmail := "testaccountcreated@test.com"
-
-	reqBody := map[string]interface{}{
-		"email":    testEmail,
-		"password": "validpassword",
+func TestSignUpReturns400OnRepeatedEmail(t *testing.T) {
+	recorder1, err := PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
+	if err != nil {
+		t.Fatal(err)
 	}
-	jsonStr, err := json.Marshal(reqBody)
-
-	req, err := http.NewRequest("POST", "/signup", bytes.NewBuffer(jsonStr))
+	recorder2, err := PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	rr := httptest.NewRecorder()
-	TestingRouter.ServeHTTP(rr, req)
+	// First request should do OK
+	if status := recorder1.Code; status != http.StatusCreated {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+
+	// Second request should fail because the email is already in use
+	if status := recorder2.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
+	}
+
+	var resp commons.GenericResponse
+	if err := json.Unmarshal(recorder2.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedMessage := "Email already in use"
+	if resp.Message != expectedMessage {
+		t.Errorf("Response returned a different message: got %v want %v", resp.Message, expectedMessage)
+	}
+}
+
+func TestSignUpStoresAccountInDB(t *testing.T) {
+	testEmail := "testaccountcreated@test.com"
+	rr, err := PrepareSignUpRequest(testEmail, "validpassword")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if rr.Code != http.StatusCreated {
 		t.Errorf("Account creation failed: " + rr.Body.String())

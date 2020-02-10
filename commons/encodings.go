@@ -3,6 +3,7 @@ package commons
 import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/schema"
 	"io"
 	"net/http"
 	"strings"
@@ -10,6 +11,7 @@ import (
 )
 
 var validate = validator.New()
+var decoder = schema.NewDecoder()
 
 type GenericResponse struct {
 	Success   bool        `json:"success"`
@@ -46,6 +48,15 @@ func EncodeAndValidate(r io.Reader, container interface{}) error {
 		} else {
 			return ValidationError{Message: err.Error(), Errors: nil}
 		}
+	}
+
+	return nil
+}
+
+func EncodeQueryParams(queryParams map[string][]string, container interface{}) error {
+	err := decoder.Decode(&container, queryParams)
+	if err != nil {
+		return ValidationError{Message: err.Error()}
 	}
 
 	return nil

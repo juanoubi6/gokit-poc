@@ -27,6 +27,16 @@ func (mw InstrumentingMiddleware) CreateUser(ctx context.Context, req CreateUser
 	return mw.Next.CreateUser(ctx, req)
 }
 
+func (mw InstrumentingMiddleware) GetUsers(ctx context.Context, req GetUsersRequest) (users []*models.User, err error) {
+	defer func(begin time.Time) {
+		lvs := []string{"method", "GetUsers", "error", fmt.Sprint(err != nil)}
+		mw.RequestCount.With(lvs...).Add(1)
+		mw.RequestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.Next.GetUsers(ctx, req)
+}
+
 func InstrumentingMiddlewareDecorator(svc UserService) UserService {
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{

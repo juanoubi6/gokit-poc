@@ -10,6 +10,7 @@ import (
 // UserService provides operations on users.
 type UserService interface {
 	CreateUser(context.Context, CreateUserRequest) (*models.User, error)
+	GetUsers(context.Context, GetUsersRequest) ([]*models.User, error)
 }
 
 type Service struct {
@@ -37,4 +38,8 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*model
 	}
 
 	return s.repository.CreateUser(ctx, user)
+}
+
+func (s *Service) GetUsers(ctx context.Context, req GetUsersRequest) ([]*models.User, error) {
+	return s.repository.GetUsers(ctx, req)
 }

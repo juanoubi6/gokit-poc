@@ -30,6 +30,22 @@ func (mw LoggingMiddleware) CreateUser(ctx context.Context, req CreateUserReques
 	return mw.Next.CreateUser(ctx, req)
 }
 
+func (mw LoggingMiddleware) GetUsers(ctx context.Context, req GetUsersRequest) (users []*models.User, err error) {
+	defer func(begin time.Time) {
+		input, _ := json.Marshal(req)
+		output, _ := json.Marshal(users)
+		_ = mw.Logger.Log(
+			"Endpoint", "GetUsers",
+			"Input", input,
+			"Output", output,
+			"Err", err,
+			"Took", time.Since(begin),
+		)
+	}(time.Now())
+
+	return mw.Next.GetUsers(ctx, req)
+}
+
 func LoggingMiddlewareDecorator(svc UserService) UserService {
 	logger := log.NewLogfmtLogger(os.Stderr)
 

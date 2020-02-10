@@ -17,7 +17,7 @@ func PrepareCreateUserRequest(jwt string, name string, lastName string, age int)
 	}
 	jsonStr, err := json.Marshal(reqBody)
 
-	req, err := http.NewRequest("POST", "/user", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return nil, err
 	}

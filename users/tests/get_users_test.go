@@ -1,15 +1,12 @@
 package users
 
 import (
-	"encoding/json"
 	"fmt"
 	"gokit-poc/commons"
 	"gokit-poc/models"
 	"gokit-poc/users"
-
 	"net/http"
 	"net/http/httptest"
-
 	"testing"
 )
 
@@ -42,9 +39,9 @@ func TestGetUsersReturns200(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 
-	var resp commons.GenericResponse
-	if err := json.Unmarshal(rr.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+	_, err = ParseResponseBodyToGenericResponse(rr.Body.Bytes())
+	if err != nil {
+		t.Errorf("Invalid response body")
 	}
 
 }
@@ -55,7 +52,7 @@ func TestGetUsersWithQueryParamsReturnsSpecifiedUser(t *testing.T) {
 	}
 
 	jwt := CreateJWTTokenForUser(1, "someEmail@test.com")
-	rr, err := PrepareGetUsersRequest(jwt, "", "", 0)
+	rr, err := PrepareGetUsersRequest(jwt, "TestQueryParam", "", 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,17 +61,17 @@ func TestGetUsersWithQueryParamsReturnsSpecifiedUser(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 
-	var resp commons.GenericResponse
-	if err := json.Unmarshal(rr.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+	var getUsersResp users.GetUsersResponse
+	if err := ParseResponseDataToStruct(rr.Body.Bytes(), &getUsersResp); err != nil {
+		t.Fatal("Unexpected error when parsing response data")
 	}
 
-	var getUsersResp users.GetUsersResponse
+	if len(getUsersResp.Users) > 1 {
+		t.Errorf("Expected only 1 result,got %v", len(getUsersResp.Users))
+	}
 
-	dec := json.NewDecoder(rr.Body)
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(&getUsersResp); err != nil {
-		t.Fatal(err)
+	if getUsersResp.Users[0].LastName != "TestLastNameQP" {
+		t.Errorf("Expected user last name to be  TestLastNameQP,got %v", getUsersResp.Users[0].LastName)
 	}
 
 }

@@ -3,7 +3,6 @@ package users
 import (
 	"bytes"
 	"encoding/json"
-	"gokit-poc/commons"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,9 +42,9 @@ func TestCreateUserReturns201OnCreatedUser(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 
-	var resp commons.GenericResponse
-	if err := json.Unmarshal(rr.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+	_, err = ParseResponseBodyToGenericResponse(rr.Body.Bytes())
+	if err != nil {
+		t.Errorf("Invalid response body")
 	}
 }
 

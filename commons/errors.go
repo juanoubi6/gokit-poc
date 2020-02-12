@@ -53,7 +53,7 @@ func EncodeJSONError(_ context.Context, err error, w http.ResponseWriter) {
 	case ValidationError:
 		httpStatusCode = http.StatusBadRequest
 		if errSlice := err.(ValidationError).Errors; errSlice != nil {
-			message = "Many validation errors found"
+			message = "Validation errors found"
 			errors = *errSlice
 		} else {
 			errors = []string{err.Error()}

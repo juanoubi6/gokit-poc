@@ -19,8 +19,6 @@ func main() {
 
 	// Start listening
 	println("Starting server on port: " + commons.Port)
-	if err := http.ListenAndServe(commons.Port, router); err != nil {
-		panic(err)
-	}
+	http.ListenAndServe(commons.Port, router)
 
 }

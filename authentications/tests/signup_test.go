@@ -72,7 +72,7 @@ func (suite *AuthenticationsTestSuite) TestSignUpStoresAccountInDB() {
 	suite.Equal(rr.Code, http.StatusCreated, "Account creation failed")
 
 	account := models.Account{}
-	if err = commons.GlobalDB.Where("email = ?", testEmail).First(&account).Error; err != nil {
+	if err = suite.db.Where("email = ?", testEmail).First(&account).Error; err != nil {
 		suite.Fail("Account not created: " + err.Error())
 	}
 

@@ -2,7 +2,6 @@ package users
 
 import (
 	"fmt"
-	"gokit-poc/commons"
 	"gokit-poc/models"
 	"gokit-poc/users"
 	"net/http"
@@ -44,7 +43,7 @@ func (suite *UsersTestSuite) TestGetUsersReturns200() {
 }
 
 func (suite *UsersTestSuite) TestGetUsersWithQueryParamsReturnsSpecifiedUser() {
-	if err := commons.GlobalDB.Save(&models.User{Name: "TestQueryParam", LastName: "TestLastNameQP"}).Error; err != nil {
+	if err := suite.db.Save(&models.User{Name: "TestQueryParam", LastName: "TestLastNameQP"}).Error; err != nil {
 		suite.Fail(err.Error())
 	}
 

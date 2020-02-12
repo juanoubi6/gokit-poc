@@ -2,6 +2,7 @@ package authentications
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"gokit-poc/builder"
 	"gokit-poc/commons"
@@ -10,14 +11,15 @@ import (
 )
 
 type AuthenticationsTestSuite struct {
+	db *gorm.DB
 	suite.Suite
 	TestRouter http.Handler
 }
 
 // Runs before the suite tests are run
 func (suite *AuthenticationsTestSuite) SetupSuite() {
-	db := builder.CreateDatabase(commons.TestDatabaseUri)
-	suite.TestRouter = builder.BuildAppRouter(db)
+	suite.db = builder.CreateDatabase(commons.TestDatabaseUri)
+	suite.TestRouter = builder.BuildAppRouter(suite.db)
 }
 
 func (suite *AuthenticationsTestSuite) ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {

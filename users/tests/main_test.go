@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"gokit-poc/builder"
 	"gokit-poc/commons"
@@ -12,14 +13,15 @@ import (
 )
 
 type UsersTestSuite struct {
+	db *gorm.DB
 	suite.Suite
 	TestRouter http.Handler
 }
 
 // Runs before the suite tests are run
 func (suite *UsersTestSuite) SetupSuite() {
-	db := builder.CreateDatabase(commons.TestDatabaseUri)
-	suite.TestRouter = builder.BuildAppRouter(db)
+	suite.db = builder.CreateDatabase(commons.TestDatabaseUri)
+	suite.TestRouter = builder.BuildAppRouter(suite.db)
 }
 
 func (suite *UsersTestSuite) CreateJWTTokenForUser(id uint, email string) string {

@@ -64,3 +64,12 @@ func (suite *UsersTestSuite) TestGetUsersWithQueryParamsReturnsSpecifiedUser() {
 	suite.Len(getUsersResp.Users, 1, "Expected only 1 result")
 	suite.Equal(getUsersResp.Users[0].LastName, "TestLastNameQP", "Expected to be the same")
 }
+
+func (suite *UsersTestSuite) TestGetUsersReturns401IfJWTIsMissing() {
+	rr, err := suite.PrepareGetUsersRequest("", "", "", 0)
+	if err != nil {
+		suite.Fail(err.Error())
+	}
+
+	suite.Equal(rr.Code, http.StatusUnauthorized, "Expected to be the same")
+}

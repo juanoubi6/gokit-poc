@@ -7,10 +7,9 @@ import (
 	"gokit-poc/users"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 )
 
-func PrepareGetUsersRequest(jwt string, name string, lastName string, age int) (*httptest.ResponseRecorder, error) {
+func (suite *UsersTestSuite) PrepareGetUsersRequest(jwt string, name string, lastName string, age int) (*httptest.ResponseRecorder, error) {
 	url := fmt.Sprintf("/users?name=%v&lastName=%v&age=%v", name, lastName, age)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -23,55 +22,45 @@ func PrepareGetUsersRequest(jwt string, name string, lastName string, age int) (
 	}
 
 	rr := httptest.NewRecorder()
-	TestingRouter.ServeHTTP(rr, req)
+	suite.TestRouter.ServeHTTP(rr, req)
 
 	return rr, nil
 }
 
-func TestGetUsersReturns200(t *testing.T) {
-	jwt := CreateJWTTokenForUser(1, "someEmail@test.com")
-	rr, err := PrepareGetUsersRequest(jwt, "", "", 0)
+func (suite *UsersTestSuite) TestGetUsersReturns200() {
+	jwt := suite.CreateJWTTokenForUser(1, "someEmail@test.com")
+	rr, err := suite.PrepareGetUsersRequest(jwt, "", "", 0)
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(rr.Code, http.StatusOK, "Expected to be the same")
 
-	_, err = ParseResponseBodyToGenericResponse(rr.Body.Bytes())
+	_, err = suite.ParseResponseBodyToGenericResponse(rr.Body.Bytes())
 	if err != nil {
-		t.Errorf("Invalid response body")
+		suite.Fail("Invalid response body")
 	}
 
 }
 
-func TestGetUsersWithQueryParamsReturnsSpecifiedUser(t *testing.T) {
+func (suite *UsersTestSuite) TestGetUsersWithQueryParamsReturnsSpecifiedUser() {
 	if err := commons.GlobalDB.Save(&models.User{Name: "TestQueryParam", LastName: "TestLastNameQP"}).Error; err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	jwt := CreateJWTTokenForUser(1, "someEmail@test.com")
-	rr, err := PrepareGetUsersRequest(jwt, "TestQueryParam", "", 0)
+	jwt := suite.CreateJWTTokenForUser(1, "someEmail@test.com")
+	rr, err := suite.PrepareGetUsersRequest(jwt, "TestQueryParam", "", 0)
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(rr.Code, http.StatusOK, "Expected to be the same")
 
 	var getUsersResp users.GetUsersResponse
-	if err := ParseResponseDataToStruct(rr.Body.Bytes(), &getUsersResp); err != nil {
-		t.Fatal("Unexpected error when parsing response data")
+	if err := suite.ParseResponseDataToStruct(rr.Body.Bytes(), &getUsersResp); err != nil {
+		suite.Fail("Unexpected error when parsing response data")
 	}
 
-	if len(getUsersResp.Users) > 1 {
-		t.Errorf("Expected only 1 result,got %v", len(getUsersResp.Users))
-	}
-
-	if getUsersResp.Users[0].LastName != "TestLastNameQP" {
-		t.Errorf("Expected user last name to be  TestLastNameQP,got %v", getUsersResp.Users[0].LastName)
-	}
-
+	suite.Len(getUsersResp.Users, 1, "Expected only 1 result")
+	suite.Equal(getUsersResp.Users[0].LastName, "TestLastNameQP", "Expected to be the same")
 }

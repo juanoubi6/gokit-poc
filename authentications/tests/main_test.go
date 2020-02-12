@@ -20,10 +20,6 @@ func (suite *AuthenticationsTestSuite) SetupSuite() {
 	suite.TestRouter = builder.BuildAppRouter(db)
 }
 
-func TestAuthenticationsTestSuite(t *testing.T) {
-	suite.Run(t, new(AuthenticationsTestSuite))
-}
-
 func (suite *AuthenticationsTestSuite) ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(responseBody, &resp); err != nil {
@@ -31,4 +27,8 @@ func (suite *AuthenticationsTestSuite) ParseResponseBodyToGenericResponse(respon
 	}
 
 	return &resp, nil
+}
+
+func TestAuthenticationsTestSuite(t *testing.T) {
+	suite.Run(t, new(AuthenticationsTestSuite))
 }

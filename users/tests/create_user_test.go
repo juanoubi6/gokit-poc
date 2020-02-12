@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 )
 
-func PrepareCreateUserRequest(jwt string, name string, lastName string, age int) (*httptest.ResponseRecorder, error) {
+func (suite *UsersTestSuite) PrepareCreateUserRequest(jwt string, name string, lastName string, age int) (*httptest.ResponseRecorder, error) {
 	reqBody := map[string]interface{}{
 		"name":     name,
 		"lastName": lastName,
@@ -26,35 +25,31 @@ func PrepareCreateUserRequest(jwt string, name string, lastName string, age int)
 	}
 
 	rr := httptest.NewRecorder()
-	TestingRouter.ServeHTTP(rr, req)
+	suite.TestRouter.ServeHTTP(rr, req)
 
 	return rr, nil
 }
 
-func TestCreateUserReturns201OnCreatedUser(t *testing.T) {
-	jwt := CreateJWTTokenForUser(1, "someEmail@test.com")
-	rr, err := PrepareCreateUserRequest(jwt, "TestName", "TestLastName", 20)
+func (suite *UsersTestSuite) TestCreateUserReturns201OnCreatedUser() {
+	jwt := suite.CreateJWTTokenForUser(1, "someEmail@test.com")
+	rr, err := suite.PrepareCreateUserRequest(jwt, "TestName", "TestLastName", 20)
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(rr.Code, http.StatusCreated, "Expected to be the same")
 
-	_, err = ParseResponseBodyToGenericResponse(rr.Body.Bytes())
+	_, err = suite.ParseResponseBodyToGenericResponse(rr.Body.Bytes())
 	if err != nil {
-		t.Errorf("Invalid response body")
+		suite.Fail("Invalid response body")
 	}
 }
 
-func TestCreateUserReturns401IfJWTIsMissing(t *testing.T) {
-	rr, err := PrepareCreateUserRequest("", "TestName", "TestLastName", 20)
+func (suite *UsersTestSuite) TestCreateUserReturns401IfJWTIsMissing() {
+	rr, err := suite.PrepareCreateUserRequest("", "TestName", "TestLastName", 20)
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if status := rr.Code; status != http.StatusUnauthorized {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
-	}
+	suite.Equal(rr.Code, http.StatusUnauthorized, "Expected to be the same")
 }

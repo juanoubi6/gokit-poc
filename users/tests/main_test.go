@@ -2,29 +2,27 @@ package users
 
 import (
 	"encoding/json"
+	"github.com/stretchr/testify/suite"
 	"gokit-poc/builder"
 	"gokit-poc/commons"
 	"gokit-poc/models"
 	"gokit-poc/security"
 	"net/http"
-	"os"
 	"testing"
 )
 
-var TestingRouter http.Handler
-
-func TestMain(m *testing.M) {
-	CreateTestingRouter()
-	code := m.Run()
-	os.Exit(code)
+type UsersTestSuite struct {
+	suite.Suite
+	TestRouter http.Handler
 }
 
-func CreateTestingRouter() {
+// Runs before the suite tests are run
+func (suite *UsersTestSuite) SetupSuite() {
 	db := builder.CreateDatabase(commons.TestDatabaseUri)
-	TestingRouter = builder.BuildAppRouter(db)
+	suite.TestRouter = builder.BuildAppRouter(db)
 }
 
-func CreateJWTTokenForUser(id uint, email string) string {
+func (suite *UsersTestSuite) CreateJWTTokenForUser(id uint, email string) string {
 	account := models.Account{
 		ID:    id,
 		Email: email,
@@ -38,8 +36,8 @@ func CreateJWTTokenForUser(id uint, email string) string {
 	return jwt
 }
 
-func ParseResponseDataToStruct(responseBody []byte, container interface{}) error {
-	response, err := ParseResponseBodyToGenericResponse(responseBody)
+func (suite *UsersTestSuite) ParseResponseDataToStruct(responseBody []byte, container interface{}) error {
+	response, err := suite.ParseResponseBodyToGenericResponse(responseBody)
 	if err != nil {
 		return err
 	}
@@ -56,11 +54,15 @@ func ParseResponseDataToStruct(responseBody []byte, container interface{}) error
 	return nil
 }
 
-func ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {
+func (suite *UsersTestSuite) ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(responseBody, &resp); err != nil {
 		return nil, err
 	}
 
 	return &resp, nil
+}
+
+func TestUsersTestSuite(t *testing.T) {
+	suite.Run(t, new(UsersTestSuite))
 }

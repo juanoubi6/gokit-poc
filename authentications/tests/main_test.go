@@ -2,27 +2,29 @@ package authentications
 
 import (
 	"encoding/json"
+	"github.com/stretchr/testify/suite"
 	"gokit-poc/builder"
 	"gokit-poc/commons"
 	"net/http"
-	"os"
 	"testing"
 )
 
-var TestingRouter http.Handler
-
-func TestMain(m *testing.M) {
-	CreateTestingRouter()
-	code := m.Run()
-	os.Exit(code)
+type AuthenticationsTestSuite struct {
+	suite.Suite
+	TestRouter http.Handler
 }
 
-func CreateTestingRouter() {
+// Runs before the suite tests are run
+func (suite *AuthenticationsTestSuite) SetupSuite() {
 	db := builder.CreateDatabase(commons.TestDatabaseUri)
-	TestingRouter = builder.BuildAppRouter(db)
+	suite.TestRouter = builder.BuildAppRouter(db)
 }
 
-func ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {
+func TestAuthenticationsTestSuite(t *testing.T) {
+	suite.Run(t, new(AuthenticationsTestSuite))
+}
+
+func (suite *AuthenticationsTestSuite) ParseResponseBodyToGenericResponse(responseBody []byte) (*commons.GenericResponse, error) {
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(responseBody, &resp); err != nil {
 		return nil, err

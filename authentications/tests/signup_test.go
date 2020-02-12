@@ -7,10 +7,9 @@ import (
 	"gokit-poc/models"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 )
 
-func PrepareSignUpRequest(email, password string) (*httptest.ResponseRecorder, error) {
+func (suite *AuthenticationsTestSuite) PrepareSignUpRequest(email, password string) (*httptest.ResponseRecorder, error) {
 	reqBody := map[string]interface{}{
 		"email":    email,
 		"password": password,
@@ -23,68 +22,58 @@ func PrepareSignUpRequest(email, password string) (*httptest.ResponseRecorder, e
 	}
 
 	rr := httptest.NewRecorder()
-	TestingRouter.ServeHTTP(rr, req)
+	suite.TestRouter.ServeHTTP(rr, req)
 
 	return rr, nil
 
 }
 
-func TestSignUpReturns201OnCreatedAccount(t *testing.T) {
-	rr, err := PrepareSignUpRequest("account@test.com", "validpassword")
+func (suite *AuthenticationsTestSuite) TestSignUpReturns201OnCreatedAccount() {
+	rr, err := suite.PrepareSignUpRequest("account@test.com", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(rr.Code, http.StatusCreated, "Expected to be the same")
 }
 
-func TestSignUpReturns400OnRepeatedEmail(t *testing.T) {
-	recorder1, err := PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
+func (suite *AuthenticationsTestSuite) TestSignUpReturns400OnRepeatedEmail() {
+	recorder1, err := suite.PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	recorder2, err := PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
+	recorder2, err := suite.PrepareSignUpRequest("repeteadEmailTest@test.com", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
 	// First request should do OK
-	if status := recorder1.Code; status != http.StatusCreated {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(recorder1.Code, http.StatusCreated, "Expected to be the same")
 
 	// Second request should fail because the email is already in use
-	if status := recorder2.Code; status != http.StatusBadRequest {
-		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(recorder2.Code, http.StatusBadRequest, "Expected to be the same")
 
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(recorder2.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
 	expectedMessage := "Email already in use"
-	if resp.Message != expectedMessage {
-		t.Errorf("Response returned a different message: got %v want %v", resp.Message, expectedMessage)
-	}
+	suite.Equal(expectedMessage, resp.Message, "Expected to be the same")
 }
 
-func TestSignUpStoresAccountInDB(t *testing.T) {
+func (suite *AuthenticationsTestSuite) TestSignUpStoresAccountInDB() {
 	testEmail := "testaccountcreated@test.com"
-	rr, err := PrepareSignUpRequest(testEmail, "validpassword")
+	rr, err := suite.PrepareSignUpRequest(testEmail, "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
-	if rr.Code != http.StatusCreated {
-		t.Errorf("Account creation failed: " + rr.Body.String())
-	}
+	suite.Equal(rr.Code, http.StatusCreated, "Account creation failed")
 
 	account := models.Account{}
 	if err = commons.GlobalDB.Where("email = ?", testEmail).First(&account).Error; err != nil {
-		t.Errorf("Account not created: " + err.Error())
+		suite.Fail("Account not created: " + err.Error())
 	}
 
 }

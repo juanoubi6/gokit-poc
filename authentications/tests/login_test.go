@@ -6,10 +6,9 @@ import (
 	"gokit-poc/commons"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 )
 
-func PrepareLoginRequest(email, password string) (*httptest.ResponseRecorder, error) {
+func (suite *AuthenticationsTestSuite) PrepareLoginRequest(email, password string) (*httptest.ResponseRecorder, error) {
 	reqBody := map[string]interface{}{
 		"email":    email,
 		"password": password,
@@ -22,95 +21,81 @@ func PrepareLoginRequest(email, password string) (*httptest.ResponseRecorder, er
 	}
 
 	rr := httptest.NewRecorder()
-	TestingRouter.ServeHTTP(rr, req)
+	suite.TestRouter.ServeHTTP(rr, req)
 
 	return rr, nil
 }
 
-func TestLoginReturns200AndJWTToken(t *testing.T) {
+func (suite *AuthenticationsTestSuite) TestLoginReturns200AndJWTToken() {
 	// Create user before login
-	singUpRR, err := PrepareSignUpRequest("loginTest@test.co", "validpassword")
+	singUpRR, err := suite.PrepareSignUpRequest("loginTest@test.co", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	if status := singUpRR.Code; status != http.StatusCreated {
-		t.Errorf("Sign up returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(singUpRR.Code, http.StatusCreated, "Expected to be the same")
 
 	// Login
-	loginRR, err := PrepareLoginRequest("loginTest@test.co", "validpassword")
+	loginRR, err := suite.PrepareLoginRequest("loginTest@test.co", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	if status := loginRR.Code; status != http.StatusOK {
-		t.Errorf("Login returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(loginRR.Code, http.StatusOK, "Expected to be the same")
 
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(loginRR.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
 	loginData, ok := resp.Data.(map[string]interface{})
 	if !ok {
-		t.Errorf("Invalid login response format in data field")
+		suite.Fail("Invalid login response format in data field")
 	}
 
 	if _, ok := loginData["token"]; !ok {
-		t.Errorf("JWT token not present in login response")
+		suite.Fail("JWT token not present in login response")
 	}
 
 }
 
-func TestLoginReturns400WhenEmailDoesNotExist(t *testing.T) {
+func (suite *AuthenticationsTestSuite) TestLoginReturns400WhenEmailDoesNotExist() {
 	// Login
-	loginRR, err := PrepareLoginRequest("notSignedUpEmail@test.co", "validpassword")
+	loginRR, err := suite.PrepareLoginRequest("notSignedUpEmail@test.co", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	if status := loginRR.Code; status != http.StatusBadRequest {
-		t.Errorf("Login returned wrong status code: got %v want %v", status, http.StatusBadRequest)
-	}
+	suite.Equal(loginRR.Code, http.StatusBadRequest, "Expected to be the same")
 
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(loginRR.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
 	expectedMessage := "Account not found"
-	if resp.Message != expectedMessage {
-		t.Errorf("Response returned a different message: got %v want %v", resp.Message, expectedMessage)
-	}
+	suite.Equal(expectedMessage, resp.Message, "Expected to be the same")
 
 }
 
-func TestLoginReturns400OnInvalidPassword(t *testing.T) {
+func (suite *AuthenticationsTestSuite) TestLoginReturns400OnInvalidPassword() {
 	// Create user before login
-	singUpRR, err := PrepareSignUpRequest("invalidPasswordTest@test.co", "validpassword")
+	singUpRR, err := suite.PrepareSignUpRequest("invalidPasswordTest@test.co", "validpassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	if status := singUpRR.Code; status != http.StatusCreated {
-		t.Errorf("Sign up returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+	suite.Equal(singUpRR.Code, http.StatusCreated, "Expected to be the same")
 
 	// Login
-	loginRR, err := PrepareLoginRequest("invalidPasswordTest@test.co", "invalidPassword")
+	loginRR, err := suite.PrepareLoginRequest("invalidPasswordTest@test.co", "invalidPassword")
 	if err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
-	if status := loginRR.Code; status != http.StatusBadRequest {
-		t.Errorf("Login returned wrong status code: got %v want %v", status, http.StatusBadRequest)
-	}
+	suite.Equal(loginRR.Code, http.StatusBadRequest, "Expected to be the same")
 
 	var resp commons.GenericResponse
 	if err := json.Unmarshal(loginRR.Body.Bytes(), &resp); err != nil {
-		t.Fatal(err)
+		suite.Fail(err.Error())
 	}
 
 	expectedMessage := "Invalid password"
-	if resp.Message != expectedMessage {
-		t.Errorf("Response returned a different message: got %v want %v", resp.Message, expectedMessage)
-	}
+	suite.Equal(expectedMessage, resp.Message, "Expected to be the same")
 
 }

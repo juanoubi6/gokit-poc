@@ -3,6 +3,7 @@ package users
 import (
 	"bytes"
 	"encoding/json"
+	"gokit-poc/models"
 	"net/http"
 	"net/http/httptest"
 )
@@ -52,4 +53,23 @@ func (suite *UsersTestSuite) TestCreateUserReturns401IfJWTIsMissing() {
 	}
 
 	suite.Equal(rr.Code, http.StatusUnauthorized, "Expected to be the same")
+}
+
+func (suite *UsersTestSuite) TestCreateUserStoresUserInDB() {
+	jwt := suite.CreateJWTTokenForUser(1, "someEmail@test.com")
+	userName := "UserCreatedInDb"
+	userLastName := "UserCreatedInDbLastName"
+	rr, err := suite.PrepareCreateUserRequest(jwt, userName, userLastName, 20)
+	if err != nil {
+		suite.Fail(err.Error())
+	}
+
+	suite.Equal(rr.Code, http.StatusCreated, "User creation failed")
+
+	user := models.User{}
+	if err = suite.db.Where("name = ?", userName).First(&user).Error; err != nil {
+		suite.Fail("User not created: " + err.Error())
+	}
+
+	suite.Equal(userLastName, user.LastName, "Expected to be the same")
 }

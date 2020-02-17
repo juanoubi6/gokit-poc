@@ -1,3 +1,2 @@
 *Fix request data encoding and validating
 *Fix panics
-*Use testify library to create testing suites

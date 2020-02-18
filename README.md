@@ -1,4 +1,10 @@
-Run the application with 
--docker-compose up
+# Go-kit POC
 
-Using fresh for hot reloading.
+Run the application with: 
+```sh
+docker-compose up
+```
+
+Using [fresh][fresh] for hot reloading.
+
+[fresh]: <https://github.com/gravityblast/fresh>
